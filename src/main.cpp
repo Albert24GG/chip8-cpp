@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 #include <filesystem>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
@@ -28,13 +30,25 @@ int main(int argc, char *argv[]) {
   if (!c8::utils::readProgramToMemory(chip8, romPath))
     return 1;
 
-  // std::cout << chip8.ram[512] << chip8.ram[513] << chip8.ram[514]
-  //           << chip8.ram[515] << '\n';
-
   c8::utils::loadFontToMemory(chip8, c8::font);
 
-  // std::cout << std::hex << static_cast<int>(chip8.ram[c8::fontEnd + 1]);
-  //  std::cout << std::hex << static_cast<int>(chip8.ram[512] & 0xF);
+  bool quit = false;
+  SDL_Event event;
+
+  while (!quit) {
+    while (SDL_PollEvent(&event) != 0) {
+        if (event.type == SDL_QUIT) {
+            quit = true;
+        }
+
+        chip8.decodeInstruction(chip8.getInstruction());
+
+        chip8.renderScreen();
+        //SDL_RenderPresent(chip8.window.renderer);
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for( 2ms );
+    }
+  }
 
   return 0;
 }

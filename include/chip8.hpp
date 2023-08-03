@@ -6,6 +6,8 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
+#include <vector>
+#include <algorithm>
 
 namespace c8 {
 
@@ -58,7 +60,16 @@ public:
   friend void c8::utils::loadFontToMemory(Chip8 &chip8,
                                           const std::array<uint8_t, 80> &font);
 
-  // std::array<uint8_t, 4096> &getRam() { return this->ram; }
+  uint16_t getInstruction();
+  void decodeInstruction(uint16_t ins);
+
+  inline void clearScreen(){
+      this->window.resetScreen();
+  }
+  inline void renderScreen(){
+      this->window.renderScreen();
+  }
+  void drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n);
 
 private:
   Registers reg{};

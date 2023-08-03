@@ -41,11 +41,15 @@ public:
 
   void clearScreen();
   void renderScreen();
+  void resetScreen();
+  void togglePixel(const uint8_t xCoord, const uint8_t yCoord);
+  void applySprite(const uint8_t row, const uint64_t sprite);
 
 private:
   SDL_Window *const window;
   SDL_Renderer *const renderer;
-  std::array<std::array<bool, 64>, 32> screen{{}};
+  //std::array<std::array<bool, 64>, 32> screen{{}};
+  std::array<uint64_t, 32> screen{{}};
 };
 
 } // namespace c8::display
