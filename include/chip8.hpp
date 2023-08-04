@@ -48,7 +48,7 @@ constexpr std::array<uint8_t, 80> font{{
 
 class Chip8 {
 public:
-  Chip8() : stack{Stack<uint16_t, 16>(reg.SP, reg.PC)} {}
+  Chip8() : stack{Stack<uint16_t, 16>{reg.SP}} {}
   Chip8(Chip8 &&) = default;
   Chip8(const Chip8 &) = default;
   ~Chip8() = default;
