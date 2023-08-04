@@ -36,14 +36,13 @@ void Window::resetScreen() {
   this->screen.fill(0);
 }
 
-void Window::togglePixel(const uint8_t xCoord, const uint8_t yCoord) {
-  this->screen[yCoord] ^= (1LL << (63 - xCoord));
-}
+bool Window::applySprite(const uint8_t row, const uint64_t sprite){
+  uint64_t newSprite {this->screen[row] ^ sprite};
+  this->screen[row] = newSprite;
 
-void Window::applySprite(const uint8_t row, const uint64_t sprite){
-  this->screen[row] ^= sprite;
+  // check if any pixels were erased
+  return ((this->screen[row] & newSprite) != this->screen[row]);
 }
-
 
 /**
 void Window::renderScreen() {

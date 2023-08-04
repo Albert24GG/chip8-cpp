@@ -42,8 +42,7 @@ public:
   void clearScreen();
   void renderScreen();
   void resetScreen();
-  void togglePixel(const uint8_t xCoord, const uint8_t yCoord);
-  void applySprite(const uint8_t row, const uint64_t sprite);
+  bool applySprite(const uint8_t row, const uint64_t sprite);
 
 private:
   SDL_Window *const window;

@@ -32,14 +32,18 @@ namespace c8{
     void Chip8::drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n){
         std::vector<uint8_t> spriteVector{this->ram.begin() + this->reg.I, this->ram.begin() + this->reg.I + n + 1};
 
+        this->reg.V[0xF] = 0;
+
         uint8_t limY = std::min(yCoord + n, 64);
         for(uint8_t row = yCoord; row < limY; ++row){
             uint64_t sprite = spriteVector[row - yCoord];
 
+            // check sprite's position and adjust it accordingly with the screen limits
             if(xCoord + 8 <= 64) sprite <<= 64 - 8 - xCoord;
             else sprite >>= xCoord + 8 - 64;
 
-            this->window.applySprite(row, sprite);
+            // set the Vf register to 1 if any pixel is erased from the screen
+            this->reg.V[0xF] |= this->window.applySprite(row, sprite);
 
         }
     }
