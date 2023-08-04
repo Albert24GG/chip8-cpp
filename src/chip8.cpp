@@ -30,10 +30,7 @@ namespace c8{
     }
 
     void Chip8::drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n){
-        std::vector<uint8_t> spriteVector;
-        spriteVector.reserve(n);
-
-        std::copy(this->ram.begin() + this->reg.I, this->ram.begin() + this->reg.I + n + 1, spriteVector.begin());
+        std::vector<uint8_t> spriteVector{this->ram.begin() + this->reg.I, this->ram.begin() + this->reg.I + n + 1};
 
         uint8_t limY = std::min(yCoord + n, 64);
         for(uint8_t row = yCoord; row < limY; ++row){

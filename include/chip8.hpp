@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <vector>
-#include <algorithm>
 
 namespace c8 {
 
