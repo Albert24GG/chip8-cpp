@@ -30,4 +30,9 @@ void loadFontToMemory(c8::Chip8 &chip8, const std::array<uint8_t, 80> &font) {
   std::copy(font.begin(), font.end(), chip8.ram.begin() + c8::fontStart);
 }
 
+uint8_t getRandomNumber(){
+    std::srand(std::time(nullptr));
+    return (std::rand() % 0x100);
+}
+
 } // namespace c8::utils

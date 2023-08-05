@@ -3,6 +3,8 @@
 #include "display.hpp"
 #include "stack.hpp"
 #include "utils.hpp"
+#include "keyboard.hpp"
+#include <queue>
 #include <array>
 #include <cstdint>
 #include <filesystem>
@@ -65,16 +67,26 @@ public:
   inline void clearScreen(){
       this->window.resetScreen();
   }
+
   inline void renderScreen(){
       this->window.renderScreen();
   }
   void drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n);
+
+  inline uint8_t getKeyInput() const{
+      return this->keyInput;
+  }
+
+  inline void setKeyInput(uint8_t key){
+      this->keyInput = key;
+  }
 
 private:
   Registers reg{};
   std::array<uint8_t, 4096> ram{{}}; // 4KB of ram
   Stack<uint16_t, 16> stack{};
   c8::display::Window window{};
+  uint8_t keyInput{0xFF};
 };
 
 } // namespace c8

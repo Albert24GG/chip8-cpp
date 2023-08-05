@@ -1,5 +1,6 @@
 #include "chip8.hpp"
 #include "utils.hpp"
+#include "keyboard.hpp"
 #include <SDL2/SDL.h>
 #include <filesystem>
 #include <iostream>
@@ -37,17 +38,27 @@ int main(int argc, char *argv[]) {
 
   while (!quit) {
     while (SDL_PollEvent(&event) != 0) {
-        if (event.type == SDL_QUIT) {
+        switch (event.type) {
+        case SDL_QUIT:
             quit = true;
+            break;
+
+        case SDL_KEYDOWN: {
+            //std::cout << event.key.keysym.scancode << '\n';
+            using namespace c8::keyboard;
+            uint8_t keyPressed =
+                convertScanCodeToKey(event.key.keysym.scancode);
+            if (keyValid(keyPressed))
+                chip8.setKeyInput(keyPressed);
+            break;
         }
-
-        chip8.decodeInstruction(chip8.getInstruction());
-
-        chip8.renderScreen();
-        //SDL_RenderPresent(chip8.window.renderer);
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for( 2ms );
+        }
     }
+        std::cout << std::hex << (int)chip8.getKeyInput() << '\n';
+        chip8.decodeInstruction(chip8.getInstruction());
+        chip8.renderScreen();
+        //chip8.setKeyInput(0xFF);
+        //SDL_Delay(10);
   }
 
   return 0;
