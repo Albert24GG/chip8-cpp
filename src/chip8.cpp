@@ -164,14 +164,16 @@ void Chip8::decodeInstruction(uint16_t ins) {
             bool isKeyDown = c8::keyboard::keyDown(this->getKeyInput(), this->reg.V[(ins >> 8) & 0xF]);
             if(isKeyDown){
                 this->reg.PC += 2;
-                this->setKeyInput(0xFF);
+                //this->setKeyInput(0xFF);
             }
         } else {                    // skip if key coresponding to Vx is not pressed
-            this->reg.PC +=
-                2 * c8::keyboard::keyUp(this->getKeyInput(), this->reg.V[(ins >> 8) & 0xF]);
+            bool isKeyUp = c8::keyboard::keyUp(this->getKeyInput(), this->reg.V[(ins >> 8) & 0xF]);
+            if(isKeyUp){
+                this->reg.PC += 2;
+                //this->setKeyInput(0xFF);
+            }
         }
         break;
-
     case 0xF:
         switch (ins & 0xFF) {
         case 0x07: // FX07 Vx = DT
@@ -199,7 +201,7 @@ void Chip8::decodeInstruction(uint16_t ins) {
             using namespace c8::keyboard;
             if(keyValid(this->getKeyInput())){ // key is valid
                 this->reg.V[(ins >> 8) & 0xF] = this->getKeyInput();
-                this->setKeyInput(0xFF);
+                //this->setKeyInput(0xFF);
             }
             else
                 this->reg.PC -= 2;

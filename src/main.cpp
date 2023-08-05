@@ -44,21 +44,25 @@ int main(int argc, char *argv[]) {
             break;
 
         case SDL_KEYDOWN: {
-            //std::cout << event.key.keysym.scancode << '\n';
             using namespace c8::keyboard;
+            //std::cout << event.key.keysym.scancode << '\n';
             uint8_t keyPressed =
                 convertScanCodeToKey(event.key.keysym.scancode);
             if (keyValid(keyPressed))
                 chip8.setKeyInput(keyPressed);
             break;
         }
+
+        case SDL_KEYUP:
+            chip8.setKeyInput(0xFF);
+
         }
     }
-        std::cout << std::hex << (int)chip8.getKeyInput() << '\n';
+        //std::cout << std::hex << (int)chip8.getKeyInput() << '\n';
         chip8.decodeInstruction(chip8.getInstruction());
         chip8.renderScreen();
         //chip8.setKeyInput(0xFF);
-        //SDL_Delay(10);
+        SDL_Delay(10);
   }
 
   return 0;
