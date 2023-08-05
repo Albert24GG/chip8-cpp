@@ -92,30 +92,45 @@ namespace c8{
                 this->reg.V[(ins >> 8) & 0xF] ^= this->reg.V[(ins >> 4) & 0xF];
                 break;
 
-            case 0x4: // 8XY4 Vx = Vx + Vy; Vf = 1 if result > 255, 0 otherwise
-                this->reg.V[0xF] = ((static_cast<uint32_t>(this->reg.V[(ins >> 8) & 0xF]) + this->reg.V[(ins >> 4) & 0xF]) > 255);
+            case 0x4: { // 8XY4 Vx = Vx + Vy; Vf = 1 if result > 255, 0 otherwise
+                bool carryFlag =
+                    ((static_cast<uint32_t>(this->reg.V[(ins >> 8) & 0xF]) +
+                      this->reg.V[(ins >> 4) & 0xF]) > 255);
                 this->reg.V[(ins >> 8) & 0xF] += this->reg.V[(ins >> 4) & 0xF];
+                this->reg.V[0xF] = carryFlag;
                 break;
+            }
 
-            case 0x5: // 8XY5 Vx = Vx - Vy; Vf = 1 if Vx > Vy, 0 otherwise
-                this->reg.V[0xF] = (this->reg.V[(ins >> 8) & 0xF] > this->reg.V[(ins >> 4) & 0xF]);
+            case 0x5: { // 8XY5 Vx = Vx - Vy; Vf = 1 if Vx > Vy, 0 otherwise
+                bool carryFlag = (this->reg.V[(ins >> 8) & 0xF] >
+                                  this->reg.V[(ins >> 4) & 0xF]);
                 this->reg.V[(ins >> 8) & 0xF] -= this->reg.V[(ins >> 4) & 0xF];
+                this->reg.V[0xF] = carryFlag;
                 break;
+            }
 
-            case 0x7: // 8XY5 Vx = Vy - Vx; Vf = 1 if Vy > Vx, 0 otherwise
-                this->reg.V[0xF] = (this->reg.V[(ins >> 8) & 0xF] < this->reg.V[(ins >> 4) & 0xF]);
-                this->reg.V[(ins >> 8) & 0xF] = this->reg.V[(ins >> 4) & 0xF] - this->reg.V[(ins >> 8) & 0xF];
+            case 0x7: { // 8XY5 Vx = Vy - Vx; Vf = 1 if Vy > Vx, 0 otherwise
+                bool carryFlag = (this->reg.V[(ins >> 8) & 0xF] <
+                                    this->reg.V[(ins >> 4) & 0xF]);
+                this->reg.V[(ins >> 8) & 0xF] = this->reg.V[(ins >> 4) & 0xF] -
+                                                this->reg.V[(ins >> 8) & 0xF];
+                this->reg.V[0xF] = carryFlag;
                 break;
+            }
 
-            case 0x6: // 8XY6 If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2
-                this->reg.V[0xF] = (this->reg.V[(ins >> 8) & 0xF] & 1);
+            case 0x6: { // 8XY6 If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2
+                bool carryFlag = (this->reg.V[(ins >> 8) & 0xF] & 1);
                 this->reg.V[(ins >> 8) & 0xF] >>= 1;
+                this->reg.V[0xF] = carryFlag;
                 break;
+            }
 
-            case 0xE: // 8XYE If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
-                this->reg.V[0xF] = ((this->reg.V[(ins >> 8) & 0xF] >> 7) & 1);
+            case 0xE:{ // 8XYE If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+                bool carryFlag = ((this->reg.V[(ins >> 8) & 0xF] >> 7) & 1);
                 this->reg.V[(ins >> 8) & 0xF] <<= 1;
+                this->reg.V[0xF] = carryFlag;
                 break;
+            }
 
             }
             break;
