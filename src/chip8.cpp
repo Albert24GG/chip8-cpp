@@ -15,7 +15,7 @@ void Chip8::drawSprite(const uint8_t xCoord, const uint8_t yCoord,
 
     this->reg.V[0xF] = 0;
 
-    uint8_t limY = std::min(yCoord + n, 64);
+    uint8_t limY = std::min(yCoord + n, 32);
     for (uint8_t row = yCoord; row < limY; ++row) {
         uint64_t sprite = spriteVector[row - yCoord];
 
