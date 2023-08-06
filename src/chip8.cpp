@@ -6,8 +6,8 @@ void Chip8::timerFunc() {
     while(!this->quit){
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(16.67ms); // run at 60Hz
-        --this->reg.DT;
-        --this->reg.ST;
+        this->reg.DT = std::max(0, this->reg.DT - 1);
+        this->reg.ST = std::max(0, this->reg.ST - 1);
     }
 }
 
