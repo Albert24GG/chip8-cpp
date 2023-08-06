@@ -37,11 +37,11 @@ void Window::resetScreen() {
 }
 
 bool Window::applySprite(const uint8_t row, const uint64_t sprite){
-  uint64_t newSprite {this->screen[row] ^ sprite};
-  this->screen[row] = newSprite;
+  uint64_t oldSprite {this->screen[row]};
+  this->screen[row] ^= sprite;
 
   // check if any pixels were erased
-  return ((this->screen[row] & newSprite) != this->screen[row]);
+  return ((this->screen[row] & oldSprite) != oldSprite);
 }
 
 /**
