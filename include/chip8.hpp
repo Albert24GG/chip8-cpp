@@ -9,6 +9,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <vector>
+#include <thread>
+#include <atomic>
+#include <chrono>
 
 namespace c8 {
 
@@ -50,10 +53,12 @@ constexpr std::array<uint8_t, 80> font{{
 
 class Chip8 {
 public:
-  Chip8() : stack{Stack<uint16_t, 16>{reg.SP}} {}
+  Chip8() : stack{Stack<uint16_t, 16>{reg.SP}}, timer{&Chip8::timerFunc, this} {}
   Chip8(Chip8 &&) = default;
   Chip8(const Chip8 &) = default;
-  ~Chip8() = default;
+  ~Chip8(){
+      this->timer.join();
+  }
 
   using PathType = std::filesystem::path;
   friend bool c8::utils::readProgramToMemory(Chip8 &chip8,
@@ -81,12 +86,17 @@ public:
       this->keyInput = key;
   }
 
+  void timerFunc();
+
+  std::atomic_bool quit{false};
+
 private:
   Registers reg{};
   std::array<uint8_t, 4096> ram{{}}; // 4KB of ram
   Stack<uint16_t, 16> stack{};
   c8::display::Window window{};
   uint8_t keyInput{0xFF};
+  std::thread timer;
 };
 
 } // namespace c8

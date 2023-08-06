@@ -1,6 +1,16 @@
 #include "chip8.hpp"
 
 namespace c8 {
+
+void Chip8::timerFunc() {
+    while(!this->quit){
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(16.67ms); // run at 60Hz
+        --this->reg.DT;
+        --this->reg.ST;
+    }
+}
+
 uint16_t Chip8::getInstruction() {
     uint16_t ins =
         (this->ram[this->reg.PC] << 8) + this->ram[(this->reg.PC) + 1];
