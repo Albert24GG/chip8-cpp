@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 #include <random>
 
 namespace c8 {

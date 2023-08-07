@@ -1,18 +1,18 @@
 #pragma once
 
 #include "display.hpp"
+#include "keyboard.hpp"
 #include "stack.hpp"
 #include "utils.hpp"
-#include "keyboard.hpp"
-#include <queue>
+#include <algorithm>
 #include <array>
-#include <cstdint>
-#include <filesystem>
-#include <vector>
-#include <thread>
 #include <atomic>
 #include <chrono>
-#include <algorithm>
+#include <cstdint>
+#include <filesystem>
+#include <queue>
+#include <thread>
+#include <vector>
 
 namespace c8 {
 
@@ -54,12 +54,10 @@ constexpr std::array<uint8_t, 80> font{{
 
 class Chip8 {
 public:
-  Chip8() : stack{Stack<uint16_t, 16>{reg.SP}}, timer{&Chip8::timerFunc, this} {}
+  Chip8();
   Chip8(Chip8 &&) = default;
   Chip8(const Chip8 &) = default;
-  ~Chip8(){
-      this->timer.join();
-  }
+  ~Chip8();
 
   using PathType = std::filesystem::path;
   friend bool c8::utils::readProgramToMemory(Chip8 &chip8,
@@ -70,22 +68,15 @@ public:
   uint16_t getInstruction();
   void decodeInstruction(uint16_t ins);
 
-  inline void clearScreen(){
-      this->window.resetScreen();
-  }
+  inline void clearScreen() { this->window.resetScreen(); }
 
-  inline void renderScreen(){
-      this->window.renderScreen();
-  }
+  inline void renderScreen() { this->window.renderScreen(); }
+
   void drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n);
 
-  inline uint8_t getKeyInput() const{
-      return this->keyInput;
-  }
+  inline uint8_t getKeyInput() const { return this->keyInput; }
 
-  inline void setKeyInput(uint8_t key){
-      this->keyInput = key;
-  }
+  inline void setKeyInput(uint8_t key) { this->keyInput = key; }
 
   void timerFunc();
 
