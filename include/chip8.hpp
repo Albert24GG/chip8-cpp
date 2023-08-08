@@ -72,7 +72,7 @@ public:
 
   inline void renderScreen() { this->window.renderScreen(); }
 
-  void drawSprite(const uint8_t xCoord, const uint8_t yCoord, const uint8_t n);
+  void drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n);
 
   inline uint8_t getKeyInput() const { return this->keyInput; }
 
