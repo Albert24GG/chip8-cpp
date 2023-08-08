@@ -100,14 +100,17 @@ void Chip8::decodeInstruction(uint16_t ins) {
       break;
 
     case 0x1: // 8XY1 Vx = Vx | Vy
+      this->reg.V[0xF] = 0;
       this->reg.V[(ins >> 8) & 0xF] |= this->reg.V[(ins >> 4) & 0xF];
       break;
 
     case 0x2: // 8XY2 Vx = Vx & Vy
+      this->reg.V[0xF] = 0;
       this->reg.V[(ins >> 8) & 0xF] &= this->reg.V[(ins >> 4) & 0xF];
       break;
 
     case 0x3: // 8XY3 Vx = Vx ^ Vy
+      this->reg.V[0xF] = 0;
       this->reg.V[(ins >> 8) & 0xF] ^= this->reg.V[(ins >> 4) & 0xF];
       break;
 
