@@ -9,10 +9,7 @@ Chip8::Chip8()
               std::this_thread::sleep_for(
                   16.67ms); // decrease timer at a rate of 60Hz
               this->reg.DT = std::max(0, this->reg.DT - 1);
-              if(this->reg.ST > 0){
-                  beep();
-                  --this->reg.ST;
-              }
+              this->reg.ST = std::max(0, this->reg.ST - 1);
           }
       }} {}
 
