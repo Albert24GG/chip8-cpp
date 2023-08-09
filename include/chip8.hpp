@@ -10,7 +10,6 @@
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
-#include <queue>
 #include <thread>
 #include <vector>
 
@@ -55,8 +54,6 @@ constexpr std::array<uint8_t, 80> font{{
 class Chip8 {
 public:
   Chip8();
-  Chip8(Chip8 &&) = default;
-  Chip8(const Chip8 &) = default;
   ~Chip8();
 
   using PathType = std::filesystem::path;
@@ -68,17 +65,15 @@ public:
   uint16_t getInstruction();
   void decodeInstruction(uint16_t ins);
 
-  inline void clearScreen() { this->window.resetScreen(); }
+  inline void clearScreen() { window.resetScreen(); }
 
-  inline void renderScreen() { this->window.renderScreen(); }
+  inline void renderScreen() { window.renderScreen(); }
 
   void drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n);
 
-  inline uint8_t getKeyInput() const { return this->keyInput; }
+  inline uint8_t getKeyInput() const { return keyInput; }
 
-  inline void setKeyInput(uint8_t key) { this->keyInput = key; }
-
-  void timerFunc();
+  inline void setKeyInput(uint8_t keyInput) { this->keyInput = keyInput; }
 
   std::atomic_bool quit{false};
 

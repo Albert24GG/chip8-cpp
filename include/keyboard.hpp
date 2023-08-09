@@ -1,18 +1,11 @@
 #pragma once
 
-// #include "chip8.hpp"
 #include <SDL.h>
-#include <array>
-#include <chrono>
-#include <thread>
+#include <cstdint>
 
 namespace c8::keyboard {
 
 uint8_t convertScanCodeToKey(SDL_Scancode code);
-
-SDL_Scancode convertKeyToScanCode(uint8_t key);
-
-SDL_Scancode getKeyPressed();
 
 inline bool keyValid(uint8_t key) { return key != 0xFF; }
 

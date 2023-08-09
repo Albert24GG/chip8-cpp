@@ -32,15 +32,12 @@ void loadFontToMemory(c8::Chip8 &chip8, const std::array<uint8_t, 80> &font) {
 
 uint8_t getRandomNumber(){
   std::random_device rd;   // Seed the generator with a truly random value
-  std::mt19937 rng(rd());  // Mersenne Twister engine (one of the most widely used engines)
+  std::mt19937 rng(rd());  // Mersenne Twister engine
 
-  // Define the range of random numbers (e.g., between 1 and 100)
   std::uniform_int_distribution<int> distribution(0x0, 0xFF);
 
   // Generate a random number within the defined range
   return distribution(rng);
-    //std::srand(std::time(nullptr));
-    //return (std::rand() % 0x100);
 }
 
 } // namespace c8::utils

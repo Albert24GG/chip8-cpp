@@ -1,7 +1,7 @@
 #include "chip8.hpp"
 #include "utils.hpp"
 #include "keyboard.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <filesystem>
 #include <iostream>
 
@@ -31,7 +31,6 @@ int main(int argc, char *argv[]) {
 
   c8::utils::loadFontToMemory(chip8, c8::font);
 
-  //bool quit = false;
   SDL_Event event;
 
   while (!chip8.quit) {
@@ -60,7 +59,7 @@ int main(int argc, char *argv[]) {
     }
         chip8.decodeInstruction(chip8.getInstruction());
         chip8.renderScreen();
-        SDL_Delay(2);
+        SDL_Delay(1);
   }
   return 0;
 }

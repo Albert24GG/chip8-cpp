@@ -15,26 +15,26 @@ public:
   Stack &operator=(const Stack &) = default;
   ~Stack() = default;
 
-  Stack(uint8_t &SP_reg) : SP{&SP_reg}{};
+  explicit Stack(uint8_t &SP_reg) : SP{&SP_reg}{};
   void push(const T ins) {
-    if (*(this->SP) == N) {
+    if (*(SP) == N) {
       std::cerr << "ERROR: Cannot push element to full stack!\n";
       return;
     }
-    stack.at(*(this->SP)) = ins;
-    ++(*(this->SP));
+    stack.at(*SP) = ins;
+    ++(*SP);
   }
 
   void pop() {
-    if (*(this->SP) == 0) {
+    if (*SP == 0) {
       std::cerr << "ERROR: Cannot pop element from empty stack!\n";
       return;
     }
-    --(*(this->SP));
+    --(*SP);
   }
 
   inline T top(){
-    return stack.at(*(this->SP) - 1);
+    return stack.at(*SP - 1);
   }
 
 private:
