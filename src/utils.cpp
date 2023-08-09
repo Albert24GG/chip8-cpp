@@ -19,7 +19,7 @@ bool readProgramToMemory(c8::Chip8 &chip8, const PathType &path) {
     return false;
   }
 
-  file.read(reinterpret_cast<char *>(chip8.ram.data()) + c8::programStart,
+  file.read(std::bit_cast<char *>(chip8.ram.data()) + c8::programStart,
             fileSize);
   file.close();
 

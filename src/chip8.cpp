@@ -9,15 +9,17 @@ Chip8::Chip8()
               std::this_thread::sleep_for(
                   16.67ms); // decrease timer at a rate of 60Hz
               this->reg.DT = std::max(0, this->reg.DT - 1);
-              this->reg.ST = std::max(0, this->reg.ST - 1);
+              if(this->reg.ST > 0){
+                  beep();
+                  --this->reg.ST;
+              }
           }
       }} {}
 
 Chip8::~Chip8() { timer.join(); }
 
 uint16_t Chip8::getInstruction() {
-    uint16_t ins =
-        (ram[reg.PC] << 8) + ram[(reg.PC) + 1];
+    uint16_t ins = (ram[reg.PC] << 8) + ram[(reg.PC) + 1];
     reg.PC += 2;
     return ins;
 }
@@ -86,9 +88,8 @@ void Chip8::decodeInstruction(uint16_t ins) {
             reg.PC += 2;
         break;
 
-    case 0x6: // 6XNN set Vx to NN
-        reg.V[(ins >> 8) & 0xF] =
-            (ins & 0x0FF); // ins >> 8 is the second byte
+    case 0x6:                                    // 6XNN set Vx to NN
+        reg.V[(ins >> 8) & 0xF] = (ins & 0x0FF); // ins >> 8 is the second byte
         break;
 
     case 0x7: // 7XNN add NN to Vx
@@ -116,47 +117,39 @@ void Chip8::decodeInstruction(uint16_t ins) {
             reg.V[(ins >> 8) & 0xF] ^= reg.V[(ins >> 4) & 0xF];
             break;
 
-        case 0x4: { // 8XY4 Vx = Vx + Vy; Vf = 1 if result > 255, 0 otherwise
-            bool carryFlag =
-                ((static_cast<uint32_t>(reg.V[(ins >> 8) & 0xF]) +
-                  reg.V[(ins >> 4) & 0xF]) > 255);
+        case 0x4: // 8XY4 Vx = Vx + Vy; Vf = 1 if result > 255, 0 otherwise
+            // Set the carry flag
+            reg.V[0xF] = ((static_cast<uint32_t>(reg.V[(ins >> 8) & 0xF]) +
+                           reg.V[(ins >> 4) & 0xF]) > 255);
             reg.V[(ins >> 8) & 0xF] += reg.V[(ins >> 4) & 0xF];
-            reg.V[0xF] = carryFlag;
             break;
-        }
 
-        case 0x5: { // 8XY5 Vx = Vx - Vy; Vf = 1 if Vx > Vy, 0 otherwise
-            bool carryFlag =
-                (reg.V[(ins >> 8) & 0xF] > reg.V[(ins >> 4) & 0xF]);
+        case 0x5: // 8XY5 Vx = Vx - Vy; Vf = 1 if Vx > Vy, 0 otherwise
+            // Set the carry flag
+            reg.V[0xF] = (reg.V[(ins >> 8) & 0xF] > reg.V[(ins >> 4) & 0xF]);
             reg.V[(ins >> 8) & 0xF] -= reg.V[(ins >> 4) & 0xF];
-            reg.V[0xF] = carryFlag;
             break;
-        }
 
-        case 0x7: { // 8XY5 Vx = Vy - Vx; Vf = 1 if Vy > Vx, 0 otherwise
-            bool carryFlag =
-                (reg.V[(ins >> 8) & 0xF] < reg.V[(ins >> 4) & 0xF]);
+        case 0x7: // 8XY5 Vx = Vy - Vx; Vf = 1 if Vy > Vx, 0 otherwise
+            // Set the carry flag
+            reg.V[0xF] = (reg.V[(ins >> 8) & 0xF] < reg.V[(ins >> 4) & 0xF]);
             reg.V[(ins >> 8) & 0xF] =
                 reg.V[(ins >> 4) & 0xF] - reg.V[(ins >> 8) & 0xF];
-            reg.V[0xF] = carryFlag;
             break;
-        }
 
-        case 0x6: { // 8XY6 If the least-significant bit of Vx is 1, then VF is
-                    // set to 1, otherwise 0. Then Vx is divided by 2
-            bool carryFlag = (reg.V[(ins >> 8) & 0xF] & 1);
+        case 0x6: // 8XY6 If the least-significant bit of Vx is 1, then VF is
+                  // set to 1, otherwise 0. Then Vx is divided by 2
+            // Set the carry flag
+            reg.V[0xF] = (reg.V[(ins >> 8) & 0xF] & 1);
             reg.V[(ins >> 8) & 0xF] >>= 1;
-            reg.V[0xF] = carryFlag;
             break;
-        }
 
-        case 0xE: { // 8XYE If the most-significant bit of Vx is 1, then VF is
-                    // set to 1, otherwise to 0. Then Vx is multiplied by 2.
-            bool carryFlag = ((reg.V[(ins >> 8) & 0xF] >> 7) & 1);
+        case 0xE: // 8XYE If the most-significant bit of Vx is 1, then VF is
+                  // set to 1, otherwise to 0. Then Vx is multiplied by 2.
+            // Set the carry flag
+            reg.V[0xF] = ((reg.V[(ins >> 8) & 0xF] >> 7) & 1);
             reg.V[(ins >> 8) & 0xF] <<= 1;
-            reg.V[0xF] = carryFlag;
             break;
-        }
         }
         break;
 
@@ -169,25 +162,24 @@ void Chip8::decodeInstruction(uint16_t ins) {
         break;
 
     case 0xC: // CXNN Vx = randNumb & NN
-        reg.V[(ins >> 8) & 0xF] =
-            c8::utils::getRandomNumber() & (ins & 0xFF);
+        reg.V[(ins >> 8) & 0xF] = c8::utils::getRandomNumber() & (ins & 0xFF);
         break;
 
     case 0xD: // DXYN
-        drawSprite(reg.V[(ins >> 8) & 0xF],
-                         reg.V[(ins >> 4) & 0xF], ins & 0xF);
+        drawSprite(reg.V[(ins >> 8) & 0xF], reg.V[(ins >> 4) & 0xF], ins & 0xF);
         break;
 
-    case 0xE:                       // EX9E & EXA1
-        if ((ins & 0xFF) == 0x9E) { // skip if key corresponding to Vx is pressed
-            bool isKeyDown = c8::keyboard::keyDown(
-                getKeyInput(), reg.V[(ins >> 8) & 0xF]);
+    case 0xE: // EX9E & EXA1
+        if ((ins & 0xFF) ==
+            0x9E) { // skip if key corresponding to Vx is pressed
+            bool isKeyDown =
+                c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
             if (isKeyDown) {
                 reg.PC += 2;
             }
         } else { // skip if key corresponding to Vx is not pressed
-            bool isKeyUp = c8::keyboard::keyUp(getKeyInput(),
-                                               reg.V[(ins >> 8) & 0xF]);
+            bool isKeyUp =
+                c8::keyboard::keyUp(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
             if (isKeyUp) {
                 reg.PC += 2;
             }
@@ -228,8 +220,7 @@ void Chip8::decodeInstruction(uint16_t ins) {
                    // the 3 consecutive bytes starting from address pointed by
                    // register I
             ram[reg.I] = (reg.V[(ins >> 8) & 0xF]) / 100;
-            ram[reg.I + 1] =
-                ((reg.V[(ins >> 8) & 0xF]) / 10) % 10;
+            ram[reg.I + 1] = ((reg.V[(ins >> 8) & 0xF]) / 10) % 10;
             ram[reg.I + 2] = (reg.V[(ins >> 8) & 0xF]) % 10;
             break;
 
