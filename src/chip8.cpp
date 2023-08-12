@@ -4,13 +4,46 @@ namespace c8 {
 
 Chip8::Chip8()
     : stack{Stack<uint16_t, 16>{reg.SP}}, timer{[this]() {
+          // the representation of our audio device in SDL:
+          SDL_AudioDeviceID audioDevice;
+
+          // opening an audio device:
+          SDL_AudioSpec audioSpec;
+          SDL_zero(audioSpec);
+          audioSpec.freq = 44100;
+          audioSpec.format = AUDIO_S16SYS;
+          audioSpec.channels = 1;
+          audioSpec.samples = 1024;
+          audioSpec.callback = NULL;
+
+          audioDevice = SDL_OpenAudioDevice(
+              NULL, 0, &audioSpec, NULL, 0);
+
+          bool audioQueued {false};
           while (!this->quit) {
+              if(this->reg.ST > 0 && !audioQueued){
+                  float x = 0;
+                  for (int i = 0; i < audioSpec.freq * this->reg.ST / 60; i++) {
+                      x += .050f;
+
+                      int16_t sample = sin(x * 4) * 5000;
+
+                      const int sample_size = sizeof(int16_t) * 1;
+                      SDL_QueueAudio(audioDevice, &sample, sample_size);
+                  }
+                // unpausing the audio device (starts playing):
+                SDL_PauseAudioDevice(audioDevice, 0);
+                audioQueued = true;
+              }
+              audioQueued = (this->reg.ST != 0); // stop playing audio when timer reaches 0
+
               using namespace std::chrono_literals;
               std::this_thread::sleep_for(
                   16.67ms); // decrease timer at a rate of 60Hz
               this->reg.DT = std::max(0, this->reg.DT - 1);
               this->reg.ST = std::max(0, this->reg.ST - 1);
           }
+          SDL_CloseAudioDevice(audioDevice);
       }} {}
 
 Chip8::~Chip8() { timer.join(); }
