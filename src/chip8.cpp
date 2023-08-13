@@ -200,19 +200,14 @@ void Chip8::decodeInstruction(uint16_t ins) {
         break;
 
     case 0xE: // EX9E & EXA1
-        if ((ins & 0xFF) ==
-            0x9E) { // skip if key corresponding to Vx is pressed
-            bool isKeyDown =
-                c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
-            if (isKeyDown) {
-                reg.PC += 2;
-            }
+        if ((ins & 0xFF) == 0x9E) { // skip if key corresponding to Vx is pressed
+
+            reg.PC += 2 * c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);;
+
         } else { // skip if key corresponding to Vx is not pressed
-            bool isKeyUp =
-                c8::keyboard::keyUp(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
-            if (isKeyUp) {
-                reg.PC += 2;
-            }
+
+            reg.PC += 2 * c8::keyboard::keyUp(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
+
         }
         break;
     case 0xF:
@@ -240,9 +235,7 @@ void Chip8::decodeInstruction(uint16_t ins) {
 
         case 0x0A: { // FX0A Vx = key pressed
             using namespace c8::keyboard;
-            if (keyValid(getKeyInput())) { // key is valid
-            } else
-                reg.PC -= 2;
+            reg.PC -= 2 * !(keyValid(getKeyInput())); // repeat instruction until key is valid
             break;
         }
 
