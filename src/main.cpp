@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     }
         chip8.decodeInstruction(chip8.getInstruction());
         chip8.renderScreen();
-        SDL_Delay(1);
+        SDL_Delay(2);
   }
   return 0;
 }
