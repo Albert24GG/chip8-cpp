@@ -8,14 +8,9 @@ namespace c8 {
 
 template <typename T, auto N> class Stack {
     public:
-    Stack()                         = default;
-    Stack(Stack &&)                 = default;
-    Stack(const Stack &)            = default;
-    Stack &operator=(Stack &&)      = default;
-    Stack &operator=(const Stack &) = default;
-    ~Stack()                        = default;
-
+    Stack() = delete;
     explicit Stack(uint8_t &SP_reg) : SP{&SP_reg} {};
+
     void push(const T ins) {
         if (*(SP) == N) {
             std::cerr << "ERROR: Cannot push element to full stack!\n";
