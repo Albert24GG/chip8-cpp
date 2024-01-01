@@ -56,6 +56,10 @@ class Chip8 {
     public:
     Chip8();
     ~Chip8();
+    Chip8(const Chip8 &)            = delete;
+    Chip8 &operator=(const Chip8 &) = delete;
+    Chip8(Chip8 &&)                 = delete;
+    Chip8 &operator=(Chip8 &&)      = delete;
 
     using PathType = std::filesystem::path;
     friend bool c8::utils::readProgramToMemory(Chip8 &chip8,
@@ -74,7 +78,7 @@ class Chip8 {
 
     void drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n);
 
-    inline uint8_t getKeyInput() const { return keyInput; }
+    [[nodiscard]] inline uint8_t getKeyInput() const { return keyInput; }
 
     inline void setKeyInput(uint8_t keyInput) { this->keyInput = keyInput; }
 
