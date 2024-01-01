@@ -16,14 +16,17 @@ class Window {
         int width = 64 * pixelSize, int height = 32 * pixelSize,
         uint32_t windowFlags = SDL_WINDOW_SHOWN, int driverIndex = -1,
         uint32_t rendererFlags = SDL_RENDERER_ACCELERATED);
-    Window(Window &&)      = default;
-    Window(const Window &) = default;
+    Window(const Window &)            = default;
+    Window &operator=(const Window &) = delete;
+    Window(Window &&)                 = default;
+    Window &operator=(Window &&)      = delete;
     ~Window();
 
     void clearScreen();
     void renderScreen();
     void resetScreen();
     bool applySprite(uint8_t row, uint64_t sprite);
+
 
     private:
     SDL_Window * const window;
