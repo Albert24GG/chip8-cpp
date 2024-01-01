@@ -1,8 +1,8 @@
 #include "keyboard.hpp"
 
-namespace c8::keyboard{
+namespace c8::keyboard {
 
-uint8_t convertScanCodeToKey(SDL_Scancode code){
+uint8_t convertScanCodeToKey(SDL_Scancode code) {
     switch (code) {
     case SDL_SCANCODE_X:
         return 0x0;
@@ -40,4 +40,4 @@ uint8_t convertScanCodeToKey(SDL_Scancode code){
         return 0xFF;
     }
 }
-}
+} // namespace c8::keyboard

@@ -10,18 +10,17 @@ Chip8::Chip8()
           // opening an audio device:
           SDL_AudioSpec audioSpec;
           SDL_zero(audioSpec);
-          audioSpec.freq = 44100;
-          audioSpec.format = AUDIO_S16SYS;
+          audioSpec.freq     = 44'100;
+          audioSpec.format   = AUDIO_S16SYS;
           audioSpec.channels = 1;
-          audioSpec.samples = 1024;
+          audioSpec.samples  = 1024;
           audioSpec.callback = NULL;
 
-          audioDevice = SDL_OpenAudioDevice(
-              NULL, 0, &audioSpec, NULL, 0);
+          audioDevice = SDL_OpenAudioDevice(NULL, 0, &audioSpec, NULL, 0);
 
-          bool audioQueued {false};
+          bool audioQueued{false};
           while (!this->quit) {
-              if(this->reg.ST > 0 && !audioQueued){
+              if (this->reg.ST > 0 && !audioQueued) {
                   float x = 0;
                   for (int i = 0; i < audioSpec.freq * this->reg.ST / 60; i++) {
                       x += .050f;
@@ -31,11 +30,12 @@ Chip8::Chip8()
                       const int sample_size = sizeof(int16_t) * 1;
                       SDL_QueueAudio(audioDevice, &sample, sample_size);
                   }
-                // unpausing the audio device (starts playing):
-                SDL_PauseAudioDevice(audioDevice, 0);
-                audioQueued = true;
+                  // unpausing the audio device (starts playing):
+                  SDL_PauseAudioDevice(audioDevice, 0);
+                  audioQueued = true;
               }
-              audioQueued = (this->reg.ST != 0); // stop playing audio when timer reaches 0
+              audioQueued = (this->reg.ST
+                  != 0); // stop playing audio when timer reaches 0
 
               using namespace std::chrono_literals;
               std::this_thread::sleep_for(
@@ -57,7 +57,7 @@ uint16_t Chip8::getInstruction() {
 void Chip8::drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n) {
 
     std::vector<uint8_t> spriteVector{ram.begin() + reg.I,
-                                      ram.begin() + reg.I + n + 1};
+        ram.begin() + reg.I + n + 1};
 
     reg.V[0xF] = 0;
     xCoord %= 64;
@@ -149,8 +149,9 @@ void Chip8::decodeInstruction(uint16_t ins) {
 
         case 0x4: // 8XY4 Vx = Vx + Vy; Vf = 1 if result > 255, 0 otherwise
             // Set the carry flag
-            reg.V[0xF] = ((static_cast<uint32_t>(reg.V[(ins >> 8) & 0xF]) +
-                           reg.V[(ins >> 4) & 0xF]) > 255);
+            reg.V[0xF] = ((static_cast<uint32_t>(reg.V[(ins >> 8) & 0xF])
+                              + reg.V[(ins >> 4) & 0xF])
+                > 255);
             reg.V[(ins >> 8) & 0xF] += reg.V[(ins >> 4) & 0xF];
             break;
 
@@ -200,14 +201,17 @@ void Chip8::decodeInstruction(uint16_t ins) {
         break;
 
     case 0xE: // EX9E & EXA1
-        if ((ins & 0xFF) == 0x9E) { // skip if key corresponding to Vx is pressed
+        if ((ins & 0xFF)
+            == 0x9E) { // skip if key corresponding to Vx is pressed
 
-            reg.PC += 2 * c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);;
+            reg.PC += 2
+                * c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
+            ;
 
         } else { // skip if key corresponding to Vx is not pressed
 
-            reg.PC += 2 * c8::keyboard::keyUp(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
-
+            reg.PC +=
+                2 * c8::keyboard::keyUp(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
         }
         break;
     case 0xF:
@@ -233,16 +237,18 @@ void Chip8::decodeInstruction(uint16_t ins) {
             reg.I = fontStart + 5 * (reg.V[(ins >> 8) & 0xF] & 0xF);
             break;
 
-        case 0x0A: { // FX0A Vx = key pressed
-            using namespace c8::keyboard;
-            reg.PC -= 2 * !(keyValid(getKeyInput())); // repeat instruction until key is valid
-            break;
-        }
+        case 0x0A:
+            { // FX0A Vx = key pressed
+                using namespace c8::keyboard;
+                reg.PC -= 2 * !(keyValid(getKeyInput())); // repeat instruction
+                                                          // until key is valid
+                break;
+            }
 
         case 0x33: // FX33 store the digits of decimal representation of Vx in
                    // the 3 consecutive bytes starting from address pointed by
                    // register I
-            ram[reg.I] = (reg.V[(ins >> 8) & 0xF]) / 100;
+            ram[reg.I]     = (reg.V[(ins >> 8) & 0xF]) / 100;
             ram[reg.I + 1] = ((reg.V[(ins >> 8) & 0xF]) / 10) % 10;
             ram[reg.I + 2] = (reg.V[(ins >> 8) & 0xF]) % 10;
             break;

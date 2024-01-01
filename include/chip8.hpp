@@ -4,6 +4,7 @@
 #include "keyboard.hpp"
 #include "stack.hpp"
 #include "utils.hpp"
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -16,20 +17,20 @@
 namespace c8 {
 
 enum AddressSpace : uint16_t {
-  reservedStart = 0x000,
-  reservedEnd = 0x1FF,
-  programStart = 0x200,
-  programEnd = 0xFFF,
-  fontStart = 0x050,
-  fontEnd = 0x09F
+    reservedStart = 0x000,
+    reservedEnd   = 0x1FF,
+    programStart  = 0x200,
+    programEnd    = 0xFFF,
+    fontStart     = 0x050,
+    fontEnd       = 0x09F
 };
 
 struct Registers {
-  uint16_t PC{programStart};
-  uint16_t I{};
-  uint8_t SP{};
-  uint8_t DT{}, ST{};
-  std::array<uint8_t, 16> V{{}};
+    uint16_t PC{programStart};
+    uint16_t I{};
+    uint8_t SP{};
+    uint8_t DT{}, ST{};
+    std::array<uint8_t, 16> V{{}};
 };
 
 inline constexpr std::array<uint8_t, 80> font{{
@@ -52,38 +53,38 @@ inline constexpr std::array<uint8_t, 80> font{{
 }};
 
 class Chip8 {
-public:
-  Chip8();
-  ~Chip8();
+    public:
+    Chip8();
+    ~Chip8();
 
-  using PathType = std::filesystem::path;
-  friend bool c8::utils::readProgramToMemory(Chip8 &chip8,
-                                             const PathType &path);
-  friend void c8::utils::loadFontToMemory(Chip8 &chip8,
-                                          const std::array<uint8_t, 80> &font);
+    using PathType = std::filesystem::path;
+    friend bool c8::utils::readProgramToMemory(Chip8 &chip8,
+        const PathType &path);
+    friend void c8::utils::loadFontToMemory(Chip8 &chip8,
+        const std::array<uint8_t, 80> &font);
 
-  uint16_t getInstruction();
-  void decodeInstruction(uint16_t ins);
+    uint16_t getInstruction();
+    void decodeInstruction(uint16_t ins);
 
-  inline void clearScreen() { window.resetScreen(); }
+    inline void clearScreen() { window.resetScreen(); }
 
-  inline void renderScreen() { window.renderScreen(); }
+    inline void renderScreen() { window.renderScreen(); }
 
-  void drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n);
+    void drawSprite(uint8_t xCoord, uint8_t yCoord, uint8_t n);
 
-  inline uint8_t getKeyInput() const { return keyInput; }
+    inline uint8_t getKeyInput() const { return keyInput; }
 
-  inline void setKeyInput(uint8_t keyInput) { this->keyInput = keyInput; }
+    inline void setKeyInput(uint8_t keyInput) { this->keyInput = keyInput; }
 
-  std::atomic_bool quit{false};
+    std::atomic_bool quit{false};
 
-private:
-  Registers reg{};
-  std::array<uint8_t, 4096> ram{{}}; // 4KB of ram
-  Stack<uint16_t, 16> stack{};
-  c8::display::Window window{};
-  uint8_t keyInput{0xFF};
-  std::thread timer;
+    private:
+    Registers reg{};
+    std::array<uint8_t, 4096> ram{{}}; // 4KB of ram
+    Stack<uint16_t, 16> stack{};
+    c8::display::Window window{};
+    uint8_t keyInput{0xFF};
+    std::thread timer;
 };
 
 } // namespace c8
