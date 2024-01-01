@@ -63,6 +63,8 @@ class Chip8 {
     friend void c8::utils::loadFontToMemory(Chip8 &chip8,
         const std::array<uint8_t, 80> &font);
 
+    friend void soundThreadFunction(Chip8 &chip8);
+
     uint16_t getInstruction();
     void decodeInstruction(uint16_t ins);
 

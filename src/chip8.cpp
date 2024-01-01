@@ -1,49 +1,42 @@
 #include "chip8.hpp"
 
+#include "beeper.hpp"
+#include "SDL_audio.h"
+
+#include <cstddef>
+
 namespace c8 {
 
+void soundThreadFunction(Chip8 &chip8) {
+
+    // the representation of our audio device in SDL, that we will use to play a
+    // beep sound:
+    SDL_AudioDeviceID audioDevice{beep::generateBeeper()};
+
+    if (audioDevice == 0) {
+        std::cerr << "Failed to open audio device: " << SDL_GetError()
+                  << std::endl;
+        return;
+    }
+
+    while (!chip8.quit) {
+        const bool beepOn = chip8.reg.ST > 0;
+
+        SDL_PauseAudioDevice(audioDevice, !beepOn);
+
+        using namespace std::chrono_literals;
+        // decrease timer at a rate of 60Hz
+        std::this_thread::sleep_for(16.67ms);
+
+        chip8.reg.DT = std::max(0, chip8.reg.DT - 1);
+        chip8.reg.ST = std::max(0, chip8.reg.ST - 1);
+    }
+    SDL_CloseAudioDevice(audioDevice);
+}
+
 Chip8::Chip8()
-    : stack{Stack<uint16_t, 16>{reg.SP}}, timer{[this]() {
-          // opening an audio device:
-          SDL_AudioSpec audioSpec;
-          SDL_zero(audioSpec);
-          audioSpec.freq     = 44'100;
-          audioSpec.format   = AUDIO_S16SYS;
-          audioSpec.channels = 1;
-          audioSpec.samples  = 1024;
-          audioSpec.callback = NULL;
-
-          // the representation of our audio device in SDL:
-          SDL_AudioDeviceID audioDevice{
-              SDL_OpenAudioDevice(NULL, 0, &audioSpec, NULL, 0)};
-
-          bool audioQueued{false};
-          while (!this->quit) {
-              if (this->reg.ST > 0 && !audioQueued) {
-                  float x = 0;
-                  for (int i = 0; i < audioSpec.freq * this->reg.ST / 60; i++) {
-                      x += .050f;
-
-                      int16_t sample = sin(x * 4) * 5000;
-
-                      const int sample_size = sizeof(int16_t) * 1;
-                      SDL_QueueAudio(audioDevice, &sample, sample_size);
-                  }
-                  // unpausing the audio device (starts playing):
-                  SDL_PauseAudioDevice(audioDevice, 0);
-                  audioQueued = true;
-              }
-              audioQueued = (this->reg.ST
-                  != 0); // stop playing audio when timer reaches 0
-
-              using namespace std::chrono_literals;
-              std::this_thread::sleep_for(
-                  16.67ms); // decrease timer at a rate of 60Hz
-              this->reg.DT = std::max(0, this->reg.DT - 1);
-              this->reg.ST = std::max(0, this->reg.ST - 1);
-          }
-          SDL_CloseAudioDevice(audioDevice);
-      }} {}
+    : stack{Stack<uint16_t, 16>{reg.SP}},
+      timer{soundThreadFunction, std::ref(*this)} {}
 
 Chip8::~Chip8() { timer.join(); }
 
@@ -167,8 +160,8 @@ void Chip8::decodeInstruction(uint16_t ins) {
                 reg.V[(ins >> 4) & 0xF] - reg.V[(ins >> 8) & 0xF];
             break;
 
-        case 0x6: // 8XY6 If the least-significant bit of Vx is 1, then VF is
-                  // set to 1, otherwise 0. Then Vx is divided by 2
+        case 0x6: // 8XY6 If the least-significant bit of Vx is 1, then VF
+                  // is set to 1, otherwise 0. Then Vx is divided by 2
             // Set the carry flag
             reg.V[0xF] = (reg.V[(ins >> 8) & 0xF] & 1);
             reg.V[(ins >> 8) & 0xF] >>= 1;
@@ -231,8 +224,8 @@ void Chip8::decodeInstruction(uint16_t ins) {
             reg.I += reg.V[(ins >> 8) & 0xF];
             break;
 
-        case 0x29: // FX29 point I to the address of the hexadecimal character
-                   // in Vx
+        case 0x29: // FX29 point I to the address of the hexadecimal
+                   // character in Vx
             reg.I = fontStart + 5 * (reg.V[(ins >> 8) & 0xF] & 0xF);
             break;
 
@@ -244,22 +237,24 @@ void Chip8::decodeInstruction(uint16_t ins) {
                 break;
             }
 
-        case 0x33: // FX33 store the digits of decimal representation of Vx in
-                   // the 3 consecutive bytes starting from address pointed by
-                   // register I
+        case 0x33: // FX33 store the digits of decimal representation of Vx
+                   // in the 3 consecutive bytes starting from address
+                   // pointed by register I
             ram[reg.I]     = (reg.V[(ins >> 8) & 0xF]) / 100;
             ram[reg.I + 1] = ((reg.V[(ins >> 8) & 0xF]) / 10) % 10;
             ram[reg.I + 2] = (reg.V[(ins >> 8) & 0xF]) % 10;
             break;
 
-        case 0x55: // FX55 copy values V0...Vx in the ram at locations I...I+x
+        case 0x55: // FX55 copy values V0...Vx in the ram at locations
+                   // I...I+x
             for (uint8_t index = 0x0;
                  index <= static_cast<uint8_t>((ins >> 8) & 0xF); ++index) {
                 ram[reg.I + index] = reg.V[index];
             }
             break;
 
-        case 0x65: // FX65 read value V0...Vx from the ram at location I...I+x
+        case 0x65: // FX65 read value V0...Vx from the ram at location
+                   // I...I+x
             for (uint8_t index = 0x0;
                  index <= static_cast<uint8_t>((ins >> 8) & 0xF); ++index) {
                 reg.V[index] = ram[reg.I + index];
