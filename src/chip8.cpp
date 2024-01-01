@@ -191,8 +191,8 @@ void Chip8::decodeInstruction(uint16_t ins) {
         break;
 
     case 0xE: // EX9E & EXA1
-        if ((ins & 0xFF)
-            == 0x9E) { // skip if key corresponding to Vx is pressed
+        // skip if key corresponding to Vx is pressed
+        if ((ins & 0xFF) == 0x9E) {
 
             reg.PC += 2
                 * c8::keyboard::keyDown(getKeyInput(), reg.V[(ins >> 8) & 0xF]);
