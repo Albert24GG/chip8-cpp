@@ -35,7 +35,12 @@ int main(int argc, char *argv[]) {
 
     while (!chip8.quit) {
         chip8.decodeInstruction(chip8.getInstruction());
-        chip8.renderScreen();
+
+        if (chip8.shouldUpdateScreen()) {
+            chip8.renderScreen();
+            chip8.updateScreen(false);
+        }
+
         SDL_Delay(2);
     }
 

@@ -188,6 +188,7 @@ void Chip8::decodeInstruction(uint16_t ins) {
 
     case 0xD: // DXYN
         drawSprite(reg.V[(ins >> 8) & 0xF], reg.V[(ins >> 4) & 0xF], ins & 0xF);
+        updateScreen(true);
         break;
 
     case 0xE: // EX9E & EXA1

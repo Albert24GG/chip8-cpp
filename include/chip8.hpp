@@ -82,7 +82,16 @@ class Chip8 {
 
     inline void setKeyInput(uint8_t keyInput) { this->keyInput = keyInput; }
 
+    inline void updateScreen(bool shouldRender) {
+        this->shouldRender = shouldRender;
+    }
+
+    [[nodiscard]] inline bool shouldUpdateScreen() const {
+        return shouldRender;
+    }
+
     std::atomic_bool quit{false};
+
 
     private:
     Registers reg{};
@@ -91,6 +100,7 @@ class Chip8 {
     c8::display::Window window{};
     uint8_t keyInput{0xFF};
     std::thread timer;
+    bool shouldRender{false};
 };
 
 } // namespace c8
