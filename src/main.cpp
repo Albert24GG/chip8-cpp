@@ -31,35 +31,15 @@ int main(int argc, char *argv[]) {
 
     c8::utils::loadFontToMemory(chip8, c8::font);
 
-    SDL_Event event;
+    std::thread inputThread(c8::keyboard::handleInput, std::ref(chip8));
 
     while (!chip8.quit) {
-        while (SDL_PollEvent(&event) != 0) {
-            switch (event.type) {
-            case SDL_QUIT:
-                chip8.quit = true;
-                break;
-
-            case SDL_KEYDOWN:
-                {
-                    using namespace c8::keyboard;
-                    uint8_t keyPressed =
-                        convertScanCodeToKey(event.key.keysym.scancode);
-                    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                        chip8.quit = true;
-                    else if (keyValid(keyPressed)) {
-                        chip8.setKeyInput(keyPressed);
-                    }
-                    break;
-                }
-
-            case SDL_KEYUP:
-                chip8.setKeyInput(0xFF);
-            }
-        }
         chip8.decodeInstruction(chip8.getInstruction());
         chip8.renderScreen();
         SDL_Delay(2);
     }
+
+    inputThread.join();
+
     return 0;
 }

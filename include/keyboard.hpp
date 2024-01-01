@@ -1,7 +1,13 @@
 #pragma once
 
+#include "chip8.hpp"
+
 #include <cstdint>
 #include <SDL.h>
+
+namespace c8 {
+class Chip8;
+}
 
 namespace c8::keyboard {
 
@@ -14,5 +20,7 @@ inline bool keyDown(uint8_t keyInput, uint8_t key) { return keyInput == key; }
 inline bool keyUp(uint8_t keyInput, uint8_t key) {
     return !keyDown(keyInput, key);
 }
+
+void handleInput(c8::Chip8 &chip8);
 
 } // namespace c8::keyboard

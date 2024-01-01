@@ -1,5 +1,10 @@
 #include "keyboard.hpp"
 
+#include "chip8.hpp"
+#include "SDL.h"
+
+#include <thread>
+
 namespace c8::keyboard {
 
 uint8_t convertScanCodeToKey(SDL_Scancode code) {
@@ -40,4 +45,38 @@ uint8_t convertScanCodeToKey(SDL_Scancode code) {
         return 0xFF;
     }
 }
+
+void handleInput(c8::Chip8 &chip8) {
+    SDL_Event event;
+
+    while (!chip8.quit) {
+        while (SDL_PollEvent(&event) != 0) {
+            switch (event.type) {
+            case SDL_QUIT:
+                chip8.quit = true;
+                break;
+
+            case SDL_KEYDOWN:
+                {
+                    using namespace c8::keyboard;
+                    uint8_t keyPressed =
+                        convertScanCodeToKey(event.key.keysym.scancode);
+                    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                        chip8.quit = true;
+                    else if (keyValid(keyPressed)) {
+                        chip8.setKeyInput(keyPressed);
+                    }
+                    break;
+                }
+
+            case SDL_KEYUP:
+                chip8.setKeyInput(0xFF);
+                break;
+            }
+        }
+        std::this_thread::sleep_for(
+            std::chrono::microseconds(100)); // Optional: Reduce CPU usage
+    }
+};
+
 } // namespace c8::keyboard
