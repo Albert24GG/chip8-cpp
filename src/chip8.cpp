@@ -4,9 +4,6 @@ namespace c8 {
 
 Chip8::Chip8()
     : stack{Stack<uint16_t, 16>{reg.SP}}, timer{[this]() {
-          // the representation of our audio device in SDL:
-          SDL_AudioDeviceID audioDevice;
-
           // opening an audio device:
           SDL_AudioSpec audioSpec;
           SDL_zero(audioSpec);
@@ -16,7 +13,9 @@ Chip8::Chip8()
           audioSpec.samples  = 1024;
           audioSpec.callback = NULL;
 
-          audioDevice = SDL_OpenAudioDevice(NULL, 0, &audioSpec, NULL, 0);
+          // the representation of our audio device in SDL:
+          SDL_AudioDeviceID audioDevice{
+              SDL_OpenAudioDevice(NULL, 0, &audioSpec, NULL, 0)};
 
           bool audioQueued{false};
           while (!this->quit) {
