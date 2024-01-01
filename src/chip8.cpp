@@ -34,9 +34,7 @@ void soundThreadFunction(Chip8 &chip8) {
     SDL_CloseAudioDevice(audioDevice);
 }
 
-Chip8::Chip8()
-    : stack{Stack<uint16_t, 16>{reg.SP}},
-      timer{soundThreadFunction, std::ref(*this)} {}
+Chip8::Chip8() : timer{soundThreadFunction, std::ref(*this)} {}
 
 Chip8::~Chip8() { timer.join(); }
 

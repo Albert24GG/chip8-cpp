@@ -87,7 +87,7 @@ class Chip8 {
     private:
     Registers reg{};
     std::array<uint8_t, 4096> ram{{}}; // 4KB of ram
-    Stack<uint16_t, 16> stack{};
+    Stack<uint16_t, 16> stack{Stack<uint16_t, 16>{reg.SP}};
     c8::display::Window window{};
     uint8_t keyInput{0xFF};
     std::thread timer;
