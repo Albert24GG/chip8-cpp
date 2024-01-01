@@ -15,6 +15,7 @@ AlignAfterOpenBracket: false
 BreakBeforeTernaryOperators: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakStringLiterals: true
+ColumnLimit: 80
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
 IndentCaseBlocks: true
